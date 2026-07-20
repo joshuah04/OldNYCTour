@@ -1,0 +1,18 @@
+{
+  "name": "뉴욕 나들이 — 어르신 뉴욕 여행 도우미",
+  "short_name": "뉴욕 나들이",
+  "description": "어르신을 위한 뉴욕 개인 여행 안내. 위치 기반 음성 안내와 근처 맛집·명소 찾기.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fbf7f0",
+  "theme_color": "#b3261e",
+  "lang": "ko",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
