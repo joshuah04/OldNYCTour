@@ -1,69 +1,52 @@
-# 뉴욕 나들이 (Oldtour)
+# NYC Tour
 
-An accessible, Korean-first **personal NYC tour guide** for senior adults — built for
-Korean seniors in New Jersey who want to visit New York but don't know where to start.
+A voice first walking guide for New York, built for Korean and Korean American visitors. This is the demo build: location, Google Maps places, a preset Midtown trip and spoken answers. The AI features (reading photos, answering spoken questions) come later.
 
-The app uses the phone's location to **talk to them** about where they are and what to
-see, and helps them find **nearby restaurants and landmarks** with walking directions.
+## What is in the demo
 
-## Features
+* **Home**: where you are, your current trip stop, and a big "Where am I?" button that answers out loud.
+* **Trip**: a map of the preset "Midtown half day" walk with the current and next stop open and the rest folded. The app speaks a stop's story when you walk up to it.
+* **Map**: nearby Restaurants, Cafes, bakeries & desserts, and Buildings from Google, sorted by distance. Tap one to hear it or open directions.
+* **Camera**: "What's this?" guesses the landmark you are pointing at from GPS and the compass. "Where am I?" says your street, the closest landmark and your next stop.
+* **Profile**: blank for now.
 
-- **📍 Live location tracking** — follows the user as they walk (browser Geolocation).
-- **🗣️ Voice + text tour guide** — a warm Korean AI guide (Claude via Vercel AI Gateway)
-  describes the surroundings; answers are read aloud (Korean text-to-speech) and can be
-  asked by voice (speech-to-text) or typed.
-- **🗺️ Map view** — interactive map centered on the user (Google Maps Embed).
-- **🍜 Nearby restaurants & 🏛️ landmarks** — Google Places, sorted by distance, with
-  direction, walking distance, rating, open-now status, and one-tap directions.
-- **♿ Senior accessibility** — large adjustable fonts, high contrast, big touch targets,
-  simple Korean navigation, pinch-zoom allowed, reduced-motion aware.
-- **📱 Installable PWA** — add to the phone home screen.
+If you are far from Manhattan, the app offers a demo mode that pretends you are standing in Koreatown.
 
-## Getting started
+## Run it on an iPhone
 
-```bash
-npm install
-cp .env.example .env.local   # then fill in the keys (see below)
-npm run dev
-```
+1. Install **Expo Go** from the App Store.
+2. On your computer, install Node.js, then in this folder run:
 
-Open http://localhost:3000. The app runs **without any keys** (with graceful
-fallbacks); add keys to enable the AI guide and place search.
+   ```bash
+   npm install
+   cp .env.example .env
+   ```
 
-## Environment variables
+3. Open `.env` and paste your Google Maps Platform key after `EXPO_PUBLIC_GOOGLE_MAPS_API_KEY=`. The key needs **Places API (New)** enabled. `.env` is ignored by git, so the key is never committed.
+4. Start the app and scan the QR code with the iPhone camera:
 
-See `.env.example`. All are optional for local UI testing but needed for full function:
+   ```bash
+   npx expo start
+   ```
 
-| Variable | Used for | Where |
-| --- | --- | --- |
-| `AI_GATEWAY_API_KEY` | AI tour guide | Server. Auto-provided on Vercel via OIDC. |
-| `GOOGLE_MAPS_API_KEY` | Places (New) + Geocoding | Server only. |
-| `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` | Map view (Embed API) | Client. Restrict by HTTP referrer. |
+   If the phone and computer are on different networks, use `npx expo start --tunnel`.
 
-Enable these Google APIs: **Places API (New)**, **Geocoding API**, **Maps Embed API**.
+## Google costs
 
-## Architecture
+Each list on the Map tab and each camera answer is one Nearby Search request. The fields the app asks for (ratings, open now, short descriptions) are billed at Google's highest Nearby Search tier, which has about 1,000 free requests a month. Results are cached for 10 minutes and only refreshed after you walk about a block, so a demo day uses a few dozen requests. To be safe, set a daily quota for Places API (New) in Google Cloud Console under APIs & Services, Quotas.
 
-- **Next.js 16 (App Router) + React 19 + Tailwind 4**, deployed on Vercel.
-- Server routes keep the Google/AI keys off the client:
-  - `POST /api/guide` — AI narration, grounded on location + nearby places.
-  - `POST /api/places` — nearby restaurants / landmarks.
-  - `GET  /api/geocode` — reverse-geocode coordinates to a Korean label.
-- `src/hooks/useGeolocation`, `useSpeech` — live location, Korean TTS/STT.
-- `src/components/SettingsProvider` — persisted font size & voice preferences.
+The key is bundled inside the app, so restrict it in Google Cloud Console to the Places API (New) before sharing a build.
 
-## Deploy
+## Checks
 
 ```bash
-npx vercel        # preview
-npx vercel --prod # production
+npm run typecheck
+npm run lint
 ```
 
-Add the environment variables in the Vercel project settings (or `vercel env add`).
+## Project layout
 
-## Notes & next ideas
-
-- Voice in/out uses the browser Web Speech API — best support is on Safari (iOS) and
-  Chrome. Korean voice quality depends on the device's installed voices.
-- Possible next steps: guided walking routes between landmarks, saved favorites,
-  a "call my family" safety button, subway directions, and offline caching.
+* `src/app`: the five tab screens (Expo Router native tabs)
+* `src/lib`: geo math, Google Places, speech and the text the app speaks
+* `src/state`: live location and trip progress
+* `src/data/trip.ts`: the preset Midtown trip
